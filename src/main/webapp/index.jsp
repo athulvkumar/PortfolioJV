@@ -115,7 +115,29 @@
                     <button type="submit">Send Message</button>
                 </form>
                 <%
+                    String error = request.getParameter("error");
                     String submitted = request.getParameter("submitted");
+
+                    if ("invalid_message".equals(error)) {
+                %>
+                    <div class="alert error">Your message contains invalid content.</div>
+                <%
+                    } else if ("data_too_long".equals(error)) {
+                %>
+                    <div class="alert error">Your input is too long. Please shorten it.</div>
+                <%
+                    } else if ("unknown".equals(error)) {
+                %>
+                    <div class="alert error">Your input is too long. Please shorten it.</div>
+                <%
+                    } else if ("true".equals(submitted)) {
+                %>
+                    <div class="alert success">Message sent successfully!</div>
+                <%
+                    }
+                %>
+
+                <%
                     if ("true".equals(submitted)) {
                 %>
                     <script>
