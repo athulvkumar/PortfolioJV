@@ -6,17 +6,31 @@
    String email = request.getParameter("email");
    String message = request.getParameter("message");
 
-   try(Connection con = DBConnection.getConnection()) {
-      String query = "insert into messages (name, email, message) values (?, ?, ?)";
-      PreparedStatement ps = con.prepareStatement(query);
-      ps.setString(1, name);
-      ps.setString(2, email);
-      ps.setString(3, message);
-      ps.executeUpdate();
+   boolean isInvalid = false;
 
-   } catch (Exception e) {
-      e.printStackTrace();
+   if (name != null && name.toLowerCase().contains("<script")) isInvalid = true;
+   if (email != null && email.toLowerCase().contains("<script")) isInvalid = true;
+   if (message != null && message.toLowerCase().contains("<script")) isInvalid = true;
+   if (message != null && message.toLowerCase().contains("javascript:")) isInvalid = true;
+
+   if (isInvalid) {
+       response.sendRedirect("index.jsp?error=invalid_message#contact");
+       return;
    }
 
-   response.sendRedirect("index.jsp?submitted=true");
+   try (Connection con = DBConnection.getConnection()) {
+       String query = "INSERT INTO messages (name, email, message) VALUES (?, ?, ?)";
+       PreparedStatement ps = con.prepareStatement(query);
+       ps.setString(1, name);
+       ps.setString(2, email);
+       ps.setString(3, message);
+       ps.executeUpdate();
+
+       response.sendRedirect("index.jsp?submitted=true#contact");
+   } catch (SQLDataException | SQLIntegrityConstraintViolationException e) {
+       response.sendRedirect("index.jsp?error=data_too_long#contact");
+   } catch (Exception e) {
+   e.printStackTrace();
+       response.sendRedirect("index.jsp?error=unknown#contact");
+   }
 %>

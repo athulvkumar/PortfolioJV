@@ -1,6 +1,7 @@
 package com.portfolio.dao;
 
 import com.portfolio.util.DBConnection;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,18 +10,21 @@ import java.sql.SQLException;
 
 public class AdminDAO {
     public boolean validateAdmin(String username, String password) throws SQLException {
-        String query = "select * from admin where username = ? AND password = ?";
+        String query = "SELECT password FROM admin WHERE username = ?";
 
-        try(Connection con = DBConnection.getConnection()) {
-            PreparedStatement ps = con.prepareStatement(query);
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(query)) {
 
             ps.setString(1, username);
-            ps.setString(2, password);
-
             ResultSet rs = ps.executeQuery();
-            return rs.next();
+
+            if (rs.next()) {
+                String hashedPassword = rs.getString("password");
+                return BCrypt.checkpw(password, hashedPassword);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
-        } return false;
+        }
+        return false;
     }
 }

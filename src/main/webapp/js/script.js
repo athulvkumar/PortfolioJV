@@ -109,3 +109,16 @@ window.addEventListener('scroll', () => {
         showNavbar();
     }, 200);
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+    const alertBox = document.querySelector(".alert");
+    if (alertBox) {
+        setTimeout(() => alertBox.classList.add("show"), 100);
+        setTimeout(() => {
+            alertBox.classList.remove("show");
+            setTimeout(() => alertBox.remove(), 300);
+        }, 6000); // 8 seconds
+    }
+});
+
+
